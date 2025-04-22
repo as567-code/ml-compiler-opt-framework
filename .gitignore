@@ -1,0 +1,25 @@
+# Build artifacts
+/build/
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/*.cmake
+/*.ninja
+
+# Editor files
+*.swp
+*~
+.vscode/
+.idea/
+
+# Compiled objects
+*.o
+*.obj
+*.so
+*.exe
+*.dll
+*.out
+
+# Logs and coverage
+*.log
+coverage/ 
