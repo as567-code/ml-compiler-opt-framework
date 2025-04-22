@@ -108,4 +108,67 @@ See [ROADMAP.md](ROADMAP.md) for the project development timeline and upcoming f
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Memory Coalescing Pass
+
+The Memory Coalescing pass analyzes and transforms memory access patterns to improve memory coalescing on GPU architectures. Coalesced memory access is critical for GPU performance, as it allows multiple threads in a warp to access memory in a single transaction rather than requiring separate memory transactions for each thread.
+
+Key features of the pass:
+- Detects strided memory access patterns in loops
+- Identifies adjacent memory accesses that can be merged
+- Transforms code to improve memory access efficiency
+
+### Implementation
+
+The pass is implemented in:
+- `src/passes/MemoryCoalescing.h` - Pass declaration
+- `src/passes/MemoryCoalescing.cpp` - Pass implementation
+
+## Building the Project
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+## Running the Tests
+
+To run all tests:
+```bash
+cd build
+ctest
+```
+
+To run specific tests:
+```bash
+./tests/test_memory_coalescing
+./tests/test_memory_coalescing_ir
+```
+
+### Test IR Files
+
+The `tests/test_files/` directory contains LLVM IR files used for testing the Memory Coalescing pass:
+
+- `strided_access.ll` - Contains functions with various strided memory access patterns
+
+## Using the Optimization Pass
+
+The Memory Coalescing pass can be run on LLVM IR files using the main executable:
+
+```bash
+./src/ml_compiler input.ll
+```
+
+This will apply the Memory Coalescing pass along with standard LLVM optimizations and output the optimized IR.
+
+## Extending the Framework
+
+To add new optimization passes:
+
+1. Create a new pass header in `src/passes/`
+2. Implement the pass in a corresponding .cpp file
+3. Register the pass in the main.cpp file or in the PassBuilder
+4. Add tests in the `tests/` directory 

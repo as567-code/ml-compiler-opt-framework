@@ -4,6 +4,11 @@
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
+; Constant pool for floating point values
+@fpZero = private unnamed_addr constant float 0.000000e+00
+@fpOneDecimal = private unnamed_addr constant float 0.100000e+00
+@fpTwoDecimal = private unnamed_addr constant float 0.200000e+00
+
 ; Function to perform 2D convolution
 ; Input: 5x5 matrix (float*)
 ; Kernel: 3x3 matrix (float*)
@@ -25,7 +30,8 @@ inner_loop_header:                                 ; preds = %outer_loop_header
 conv_loop:                                         ; preds = %inner_loop_header
   ; Initialize accumulator
   %acc = alloca float, align 4
-  store float 0.0, float* %acc, align 4
+  %fpZeroVal = load float, float* @fpZero, align 4
+  store float %fpZeroVal, float* %acc, align 4
   
   ; Perform convolution for output[i][j]
   br label %kernel_loop_i
@@ -117,27 +123,29 @@ init_input_body:
   
 init_kernel_start:
   ; Initialize kernel matrix (simple identity kernel with higher weight in center)
-  ; [0.1, 0.1, 0.1]
-  ; [0.1, 0.2, 0.1]
-  ; [0.1, 0.1, 0.1]
+  ; Load floating point constants
+  %fpOneDecimalVal = load float, float* @fpOneDecimal, align 4
+  %fpTwoDecimalVal = load float, float* @fpTwoDecimal, align 4
+  
+  ; Initialize kernel
   %kernel_ptr_0 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 0
-  store float 0.1, float* %kernel_ptr_0, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_0, align 4
   %kernel_ptr_1 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 1
-  store float 0.1, float* %kernel_ptr_1, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_1, align 4
   %kernel_ptr_2 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 2
-  store float 0.1, float* %kernel_ptr_2, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_2, align 4
   %kernel_ptr_3 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 3
-  store float 0.1, float* %kernel_ptr_3, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_3, align 4
   %kernel_ptr_4 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 4
-  store float 0.2, float* %kernel_ptr_4, align 4  ; Center has higher weight
+  store float %fpTwoDecimalVal, float* %kernel_ptr_4, align 4  ; Center has higher weight
   %kernel_ptr_5 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 5
-  store float 0.1, float* %kernel_ptr_5, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_5, align 4
   %kernel_ptr_6 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 6
-  store float 0.1, float* %kernel_ptr_6, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_6, align 4
   %kernel_ptr_7 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 7
-  store float 0.1, float* %kernel_ptr_7, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_7, align 4
   %kernel_ptr_8 = getelementptr [9 x float], [9 x float]* %kernel, i32 0, i32 8
-  store float 0.1, float* %kernel_ptr_8, align 4
+  store float %fpOneDecimalVal, float* %kernel_ptr_8, align 4
   
   ; Call convolution function
   %input_base = getelementptr [25 x float], [25 x float]* %input, i32 0, i32 0
