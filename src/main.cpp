@@ -18,6 +18,9 @@
 #include "llvm/Transforms/Scalar/LoopUnrollPass.h"
 #include "llvm/Passes/OptimizationLevel.h"
 
+// Custom passes
+#include "passes/MemoryCoalescing.h"
+
 int main(int argc, char** argv) {
     // Check command line arguments
     if (argc < 2) {
@@ -56,15 +59,25 @@ int main(int argc, char** argv) {
     PB.registerLoopAnalyses(LAM);
     PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
     
-    // Create module pass manager with optimization level 3
+    // Create module pass manager with standard optimization passes
     llvm::ModulePassManager MPM = PB.buildPerModuleDefaultPipeline(
         llvm::OptimizationLevel::O3);
     
-    // 3. Run the passes
+    // 3. Add our custom memory coalescing pass
+    llvm::outs() << "Adding custom memory coalescing pass...\n";
+    for (auto &F : *Module) {
+        if (!F.isDeclaration()) {
+            // Create and run the custom memory coalescing pass
+            mlcompileropt::MemoryCoalescingPass MemCoalesce;
+            MemCoalesce.run(F, FAM);
+        }
+    }
+    
+    // 4. Run the standard optimization passes
     llvm::outs() << "Running optimization passes...\n";
     MPM.run(*Module, MAM);
     
-    // 4. Output the optimized IR to stdout
+    // 5. Output the optimized IR to stdout
     llvm::outs() << "Optimized IR:\n";
     llvm::outs() << "------------\n";
     Module->print(llvm::outs(), nullptr);

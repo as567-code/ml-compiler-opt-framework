@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        llvm-version: [15, 16]
+
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Install LLVM and dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build
+        sudo apt-get install -y llvm-${{ matrix.llvm-version }} llvm-${{ matrix.llvm-version }}-dev
+        sudo apt-get install -y libgtest-dev
+        sudo apt-get install -y clang-${{ matrix.llvm-version }}
+        echo "LLVM_DIR=/usr/lib/llvm-${{ matrix.llvm-version }}/lib/cmake/llvm" >> $GITHUB_ENV
+        
+    - name: Create Build Directory
+      run: mkdir -p build
+
+    - name: Configure CMake
+      working-directory: build
+      run: cmake .. -G Ninja
+
+    - name: Build
+      working-directory: build
+      run: ninja
+
+    - name: Run Tests
+      working-directory: build
+      run: ctest --output-on-failure
+
+    - name: Run Benchmarks
+      working-directory: build
+      run: ./bench/bench_optimizer ../data/matmul.ll ../data/conv2d.ll 

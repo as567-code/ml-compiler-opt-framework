@@ -36,4 +36,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(src)
 
 # Add tests directory
-add_subdirectory(tests) 
+add_subdirectory(tests)
+
+# Add benchmark directory
+add_subdirectory(bench) 
