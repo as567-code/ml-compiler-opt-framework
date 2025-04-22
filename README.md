@@ -172,3 +172,4 @@ To add new optimization passes:
 2. Implement the pass in a corresponding .cpp file
 3. Register the pass in the main.cpp file or in the PassBuilder
 4. Add tests in the `tests/` directory # interactive-ml-model-visualization-tool
+# interactive-ml-model-visualization-tool
