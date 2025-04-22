@@ -50,3 +50,32 @@ This document outlines the development plan for the ML Compiler Optimization Fra
 - Quantization-aware optimization
 - Hardware-specific customizations for emerging ML accelerators
 - Integration with compiler frameworks like MLIR 
+
+# Basic usage
+./src/ml_compiler ../tests/test_files/strided_access.ll
+
+# With verbose output
+./src/ml_compiler ../tests/test_files/strided_access.ll --verbose
+
+# Run on matrix multiplication example
+./src/ml_compiler ../data/matmul.ll
+
+# Run on the simple convolution example
+./src/ml_compiler ../data/simple_conv2d.ll 
+
+# Run all tests
+ctest
+
+# Run all tests with verbose output
+ctest -V
+
+# Run specific tests
+./tests/test_basic
+./tests/test_memory_coalescing
+./tests/test_memory_coalescing_ir 
+
+# Benchmark the strided access optimization
+./bench/bench_optimizer ../tests/test_files/strided_access.ll
+
+# Benchmark matrix multiplication
+./bench/bench_optimizer ../data/matmul.ll 

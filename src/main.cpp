@@ -26,11 +26,18 @@ int main(int argc, char** argv) {
     if (argc < 2) {
         std::cerr << "ML Compiler Optimization Framework\n"
                   << "--------------------------------\n"
-                  << "Usage: " << argv[0] << " <input-IR-file>\n";
+                  << "Usage: " << argv[0] << " <input-IR-file> [--verbose]\n";
         return 1;
     }
 
     std::string InputFilename = argv[1];
+    bool Verbose = false;
+    
+    // Check for verbose flag
+    if (argc > 2 && std::string(argv[2]) == "--verbose") {
+        Verbose = true;
+        llvm::outs() << "Verbose mode enabled\n";
+    }
     
     // 1. Setup LLVM context and parse the IR file
     llvm::LLVMContext Context;
@@ -69,7 +76,37 @@ int main(int argc, char** argv) {
         if (!F.isDeclaration()) {
             // Create and run the custom memory coalescing pass
             mlcompileropt::MemoryCoalescingPass MemCoalesce;
-            MemCoalesce.run(F, FAM);
+            
+            if (Verbose) {
+                llvm::outs() << "Analyzing function: " << F.getName() << "\n";
+                
+                // Print basic blocks in function
+                llvm::outs() << "  Function has " << F.size() << " basic blocks\n";
+                
+                // Check for loops
+                auto &LI = FAM.getResult<llvm::LoopAnalysis>(F);
+                llvm::outs() << "  Function has " << std::distance(LI.begin(), LI.end()) << " top-level loops\n";
+                
+                // Count memory operations
+                int LoadCount = 0;
+                int StoreCount = 0;
+                for (auto &BB : F) {
+                    for (auto &I : BB) {
+                        if (llvm::isa<llvm::LoadInst>(I)) LoadCount++;
+                        if (llvm::isa<llvm::StoreInst>(I)) StoreCount++;
+                    }
+                }
+                llvm::outs() << "  Function has " << LoadCount << " loads and " 
+                            << StoreCount << " stores\n";
+            }
+            
+            // Run the pass
+            auto Result = MemCoalesce.run(F, FAM);
+            
+            if (Verbose) {
+                llvm::outs() << "  Pass preserved analyses: " 
+                            << (Result.areAllPreserved() ? "all" : "none") << "\n";
+            }
         }
     }
     
